@@ -1,0 +1,26 @@
+use mysql;
+
+CREATE USER 'test'@'%' IDENTIFIED BY 'Test12#$';
+GRANT ALL PRIVILEGES ON travel_db.* TO 'test'@'%';
+FLUSH PRIVILEGES;
+
+
+CREATE DATABASE IF NOT EXISTS travel_db;
+USE travel_db;
+
+CREATE TABLE travel_product (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price INT NOT NULL,
+    location VARCHAR(255),
+    start_date DATE,
+    end_date DATE
+);
+
+INSERT INTO travel_product (name, description, price, location, start_date, end_date)
+VALUES
+('제주도 3박 4일', '아름다운 제주도에서의 휴양 여행', 450000, '제주도', '2023-07-15', '2023-07-18'),
+('방콕 5박 6일', '태국 방콕 문화 체험 여행', 850000, '태국 방콕', '2023-08-10', '2023-08-15'),
+('오사카 4박 5일', '일본 오사카 맛집 투어', 750000, '일본 오사카', '2023-09-20', '2023-09-24'),
+('파리 7박 8일', '프랑스 파리 예술 투어', 2500000, '프랑스 파리', '2023-10-05', '2023-10-12');
