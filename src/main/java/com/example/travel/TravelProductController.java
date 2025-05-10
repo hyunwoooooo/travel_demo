@@ -1,5 +1,6 @@
 package com.example.travel;
 
+import com.example.travel.dto.TravelProductDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -51,21 +52,21 @@ public class TravelProductController {
      * 새로운 여행 상품을 생성하는 엔드포인트
      * 
      * HTTP POST 요청을 처리하여 여행 상품을 생성합니다.
-     * @PostMapping 어노테이션은 이 메소드가 HTTP POST 요청을 처리함을 나타냅니다.
+     * DTO를 사용하여 ID 필드 없이 상품을 생성합니다.
      * 
-     * @param product 클라이언트로부터 받은 여행 상품 데이터
+     * @param productDto 클라이언트로부터 받은 여행 상품 DTO
      * @return 생성된 여행 상품(ID 부여됨)
-     * 
-     * @RequestBody 어노테이션은 HTTP 요청 본문의 JSON 데이터를 Java 객체로 변환합니다.
      */
     @PostMapping
-    @Operation(summary = "여행 상품 생성", description = "새로운 여행 상품을 생성합니다.")
+    @Operation(summary = "여행 상품 생성", description = "새로운 여행 상품을 생성합니다. ID는 자동으로 생성됩니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "여행 상품 생성 성공",
                 content = @Content(schema = @Schema(implementation = TravelProduct.class))),
         @ApiResponse(responseCode = "400", description = "잘못된 요청")
     })
-    public TravelProduct create(@RequestBody TravelProduct product) {
+    public TravelProduct create(@RequestBody TravelProductDto productDto) {
+        // DTO를 엔티티로 변환하여 저장
+        TravelProduct product = productDto.toEntity();
         return service.save(product);
     }
 
@@ -125,5 +126,41 @@ public class TravelProductController {
             @Parameter(description = "여행 상품 ID", example = "1") 
             @PathVariable Long id) {
         service.deleteById(id);
+    }
+    
+    /**
+     * 여행 상품을 수정하는 엔드포인트
+     * 
+     * HTTP PUT 요청을 처리하여 특정 ID의 여행 상품을 수정합니다.
+     * 
+     * @param id 수정할 여행 상품의 ID
+     * @param productDto 수정할 내용이 담긴 여행 상품 DTO
+     * @return 수정된 여행 상품
+     */
+    @PutMapping("/{id}")
+    @Operation(summary = "여행 상품 수정", description = "ID로 특정 여행 상품을 수정합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "여행 상품 수정 성공"),
+        @ApiResponse(responseCode = "404", description = "여행 상품 없음")
+    })
+    public TravelProduct update(
+            @Parameter(description = "여행 상품 ID", example = "1") 
+            @PathVariable Long id,
+            @RequestBody TravelProductDto productDto) {
+        
+        TravelProduct existingProduct = service.findById(id);
+        if (existingProduct == null) {
+            throw new RuntimeException("여행 상품을 찾을 수 없습니다: " + id);
+        }
+        
+        // 엔티티 수정
+        existingProduct.setName(productDto.getName());
+        existingProduct.setDescription(productDto.getDescription());
+        existingProduct.setPrice(productDto.getPrice());
+        existingProduct.setLocation(productDto.getLocation());
+        existingProduct.setStartDate(productDto.getStartDate());
+        existingProduct.setEndDate(productDto.getEndDate());
+        
+        return service.save(existingProduct);
     }
 }
