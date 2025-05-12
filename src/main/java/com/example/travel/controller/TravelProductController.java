@@ -1,5 +1,7 @@
-package com.example.travel;
+package com.example.travel.controller;
 
+import com.example.travel.entity.TravelProduct;
+import com.example.travel.service.TravelProductService;
 import com.example.travel.dto.TravelProductDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

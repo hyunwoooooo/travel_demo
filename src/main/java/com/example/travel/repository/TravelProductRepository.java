@@ -1,5 +1,6 @@
-package com.example.travel;
+package com.example.travel.repository;
 
+import com.example.travel.entity.TravelProduct;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
