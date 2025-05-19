@@ -162,4 +162,86 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.tokenType").value("Bearer"))
                 .andExpect(jsonPath("$.provider").value("LOCAL"));
     }
+
+    @Test
+    @DisplayName("로그인 실패 테스트 - 존재하지 않는 사용자")
+    void loginFailTest_UserNotFound() throws Exception {
+        when(authService.login(any(AuthRequest.class)))
+            .thenThrow(new AuthenticationException("존재하지 않는 사용자입니다."));
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new AuthRequest("notfound@example.com", "wrongpass"))))
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("존재하지 않는 사용자입니다."));
+    }
+
+    @Test
+    @DisplayName("로그인 실패 테스트 - 잘못된 비밀번호")
+    void loginFailTest_WrongPassword() throws Exception {
+        when(authService.login(any(AuthRequest.class)))
+            .thenThrow(new AuthenticationException("비밀번호가 일치하지 않습니다."));
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new AuthRequest("user@example.com", "wrongpass"))))
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("비밀번호가 일치하지 않습니다."));
+    }
+
+    @Test
+    @DisplayName("회원가입 실패 테스트 - 이미 존재하는 이메일")
+    void signupFailTest_DuplicateEmail() throws Exception {
+        when(authService.signup(any(AuthRequest.class)))
+            .thenThrow(new RuntimeException("이미 존재하는 이메일입니다."));
+
+        AuthRequest signupRequest = new AuthRequest();
+        signupRequest.setEmail("existing@example.com");
+        signupRequest.setPassword("password123");
+        signupRequest.setName("기존유저");
+
+        mockMvc.perform(post("/api/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(signupRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("이미 존재하는 이메일입니다."));
+    }
+
+    @Test
+    @DisplayName("토큰 갱신 실패 테스트 - 유효하지 않은 리프레시 토큰")
+    void refreshTokenFailTest_InvalidToken() throws Exception {
+        when(authService.refreshToken(anyString()))
+            .thenThrow(new RuntimeException("유효하지 않은 리프레시 토큰입니다."));
+
+        mockMvc.perform(post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"refreshToken\": \"invalid-token\"}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("유효하지 않은 리프레시 토큰입니다."));
+    }
+
+    @Test
+    @DisplayName("소셜 로그인 실패 테스트 - 지원하지 않는 제공자")
+    void socialLoginFailTest_UnsupportedProvider() throws Exception {
+        when(authService.socialLogin(anyString(), anyString()))
+            .thenThrow(new RuntimeException("지원하지 않는 소셜 로그인 제공자입니다."));
+
+        mockMvc.perform(post("/api/auth/social")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"provider\": \"UNKNOWN\", \"token\": \"social-token\"}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("지원하지 않는 소셜 로그인 제공자입니다."));
+    }
+
+    @Test
+    @DisplayName("로그아웃 실패 테스트 - 유효하지 않은 토큰")
+    void logoutFailTest_InvalidToken() throws Exception {
+        doThrow(new RuntimeException("유효하지 않은 토큰입니다."))
+            .when(authService).logout(anyString());
+
+        mockMvc.perform(post("/api/auth/logout")
+                .header("Authorization", "Bearer invalid-token"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("유효하지 않은 토큰입니다."));
+    }
 } 
