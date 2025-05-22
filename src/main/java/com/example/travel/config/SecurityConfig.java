@@ -60,15 +60,12 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> 
                 auth.requestMatchers(
                     new AntPathRequestMatcher("/api/auth/**"),
-                    new AntPathRequestMatcher("/swagger-ui/**"),
                     new AntPathRequestMatcher("/v3/api-docs/**"),
+                    new AntPathRequestMatcher("/swagger-ui/**"),
                     new AntPathRequestMatcher("/swagger-ui.html"),
                     new AntPathRequestMatcher("/swagger-resources/**"),
-                    new AntPathRequestMatcher("/webjars/**"),
-                    new AntPathRequestMatcher("/api-docs/**"),
-                    new AntPathRequestMatcher("/swagger-ui/index.html"),
-                    new AntPathRequestMatcher("/swagger-ui/swagger-config"),
-                    new AntPathRequestMatcher("/swagger-ui/swagger-initializer.js")
+                    new AntPathRequestMatcher("/webjars/**")
+
                 ).permitAll()
                 .anyRequest().authenticated()
             )
