@@ -24,3 +24,40 @@ VALUES
 ('방콕 5박 6일', '태국 방콕 문화 체험 여행', 850000, '태국 방콕', '2023-08-10', '2023-08-15'),
 ('오사카 4박 5일', '일본 오사카 맛집 투어', 750000, '일본 오사카', '2023-09-20', '2023-09-24'),
 ('파리 7박 8일', '프랑스 파리 예술 투어', 2500000, '프랑스 파리', '2023-10-05', '2023-10-12');
+
+CREATE TABLE users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 새로운 사용자 추가 (비밀번호: password123)
+INSERT INTO users (email, password, name, role)
+VALUES (
+    'test@example.com',
+    '$2a$10$REa7Iu9DMiRhUfvYtplWaORqy7x8BrhXebQpSCkXYznzkZEAEyR/O',  -- 새로 생성된 BCrypt 해시
+    '테스트',
+    'USER'
+);
+
+-- 테스트 계정 1
+INSERT INTO users (email, password, name, role)
+VALUES (
+    'test1@example.com',
+    '$2a$10$gTlWrOGYBZF3VEMuTDf5Vu9i.4yK3eJzrkCOthBaKbfJfIBDrlZSC',
+    '테스트1',
+    'USER'
+);
+
+-- 테스트 계정 2
+INSERT INTO users (email, password, name, role)
+VALUES (
+    'test2@example.com',
+    '$2a$10$LOetchbVRnvtq6XSjmUNXuU7wNd1Taj8C7EYbko3MGM0fFpsXnyQW',
+    '테스트2',
+    'USER'
+);
