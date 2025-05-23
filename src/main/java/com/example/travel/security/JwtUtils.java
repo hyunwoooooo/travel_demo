@@ -93,11 +93,15 @@ public class JwtUtils {
      * @return 토큰의 모든 클레임
      */
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            return e.getClaims(); // 만료되었지만 claims 정보는 반환 가능
+        }
     }
 
     /**
@@ -107,7 +111,11 @@ public class JwtUtils {
      * @return 토큰이 만료되었으면 true, 아니면 false
      */
     private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        try {
+            return extractExpiration(token).before(new Date());
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            return true;
+        }
     }
 
     /**

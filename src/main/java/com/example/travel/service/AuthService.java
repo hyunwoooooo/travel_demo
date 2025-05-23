@@ -113,7 +113,7 @@ public class AuthService {
             new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        // SecurityContext에 인증 정보 설정
+        // SecurityContext에 인증 정보 설정 - 회원가입후 자동 로그인 설정이라 인증정보 저장 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
         // JWT 토큰 생성
