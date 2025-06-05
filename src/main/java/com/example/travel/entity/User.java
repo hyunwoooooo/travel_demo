@@ -6,9 +6,11 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * 사용자 엔티티 클래스
@@ -20,7 +22,7 @@ import java.util.Collections;
 @Table(name = "users")
 @Getter
 @Setter
-public class User implements UserDetails {
+public class User implements UserDetails, OAuth2User {
     
     /**
      * 사용자 ID
@@ -57,7 +59,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role = UserRole.USER;
-    
+
     /**
      * 사용자 역할 열거형
      */
@@ -65,6 +67,27 @@ public class User implements UserDetails {
         USER, ADMIN
     }
 
+    /**
+     * 소셜 로그인 제공자
+     * LOCAL, GOOGLE, NAVER
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Provider provider = Provider.LOCAL;
+
+    /**
+     * 소셜 로그인 제공자 ID
+     */
+    @Column
+    private String providerId;
+
+    /**
+     * 소셜 로그인 제공자 열거형
+     */
+    public enum Provider {
+        LOCAL, GOOGLE, NAVER
+    }
+    
     /**
      * 사용자의 권한 목록 반환
      * Spring Security에서 사용자의 권한을 확인하는데 사용됩니다.
@@ -126,5 +149,18 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    /**
+     * OAuth2User 인터페이스 구현
+     */
+    @Override
+    public Map<String, Object> getAttributes() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 } 

@@ -1,6 +1,9 @@
 package com.example.travel.config;
 
+import com.example.travel.entity.User;
+import com.example.travel.repository.UserRepository;
 import com.example.travel.security.JwtAuthFilter;
+import com.example.travel.security.JwtUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +18,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
@@ -36,13 +42,22 @@ public class SecurityConfig {
      * JWT 인증 필터
      */
     private final JwtAuthFilter jwtAuthFilter;
+    private final JwtUtils jwtUtils;
+    private final UserRepository userRepository;
 
     /**
      * 생성자를 통한 의존성 주입
      */
-    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(
+        UserDetailsService userDetailsService, 
+        JwtAuthFilter jwtAuthFilter, 
+        JwtUtils jwtUtils,
+        UserRepository userRepository
+    ) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthFilter = jwtAuthFilter;
+        this.jwtUtils = jwtUtils;
+        this.userRepository = userRepository;
     }
     
     /**
@@ -98,9 +113,24 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/swagger-ui/**"),
                     new AntPathRequestMatcher("/swagger-ui.html"),
                     new AntPathRequestMatcher("/swagger-resources/**"),
-                    new AntPathRequestMatcher("/webjars/**")
+                    new AntPathRequestMatcher("/webjars/**"),
+                    new AntPathRequestMatcher("/login/**"),
+                    new AntPathRequestMatcher("/oauth2/**"),
+                    new AntPathRequestMatcher("/auth/oauth2/**")
                 ).permitAll()
                 .anyRequest().authenticated()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .loginPage("/login")
+                .defaultSuccessUrl("/auth/oauth2/success", true)
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(oauth2UserService())
+                )
+                .successHandler((request, response, authentication) -> {
+                    User user = (User) authentication.getPrincipal();
+                    String jwt = jwtUtils.generateToken(user);
+                    response.sendRedirect("/auth/oauth2/success?token=" + jwt);
+                })
             )
             // 데이터베이스 인증 제공자 설정
             .authenticationProvider(authenticationProvider())
@@ -108,5 +138,10 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
+    }
+
+    @Bean
+    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
+        return new OAuth2Config(userRepository, passwordEncoder());
     }
 } 

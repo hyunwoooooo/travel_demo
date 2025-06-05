@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>로그인</title>
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .social-login-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+        .google-btn {
+            background-color: #4285f4;
+            color: white;
+        }
+        .naver-btn {
+            background-color: #03c75a;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>로그인</h2>
+        <a href="/oauth2/authorization/google" class="social-login-btn google-btn">
+            Google로 로그인
+        </a>
+        <a href="/oauth2/authorization/naver" class="social-login-btn naver-btn">
+            Naver로 로그인
+        </a>
+    </div>
+</body>
+</html> 

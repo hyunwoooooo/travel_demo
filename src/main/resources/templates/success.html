@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>로그인 성공</title>
+    <style>
+        .success-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .success-message {
+            font-size: 22px;
+            color: #2ecc40;
+            margin-bottom: 20px;
+        }
+        .token-box {
+            background: #f4f4f4;
+            border-radius: 5px;
+            padding: 10px;
+            word-break: break-all;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-message">로그인 성공! 🎉</div>
+        <div>아래 토큰을 복사해서 API 테스트에 사용할 수 있습니다.</div>
+        <div class="token-box" th:text="${token}"></div>
+    </div>
+</body>
+</html> 
